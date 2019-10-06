@@ -15,7 +15,6 @@ import { UserState, LOGOUT, LOGIN, UserActions } from "./UserTypes";
           ...state,
           user: action.payload
         };
-  
       default:
         return state;
     }

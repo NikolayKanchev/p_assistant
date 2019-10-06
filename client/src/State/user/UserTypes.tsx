@@ -1,6 +1,7 @@
 export interface User {
     id: string;
     displayName: string;
+    token: string;
   }
   export interface UserState {
     user: User | undefined;

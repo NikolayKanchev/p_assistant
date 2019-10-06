@@ -20,6 +20,8 @@ exports.signup = (req, res, next) => {
                 }else{
                     const user = new User({
                         _id: new mongoose.Types.ObjectId(),
+                        firstName: req.body.firstName,
+                        lastName: req.body.lastName,
                         email: req.body.email,
                         password: hash
                     });
@@ -69,7 +71,9 @@ exports.login = (req, res, next) => {
                     
                     return res.status(200).json({
                         message: 'Auth successful',
-                        token: token
+                        token: token,
+                        displayName: user[0].firstName,
+                        userId: user[0]._id
                     });
                 }
 

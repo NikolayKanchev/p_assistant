@@ -22,7 +22,7 @@ import Container from '@material-ui/core/Container';
 
 const App: React.FC = () => {
   const [{ state }] = useStateValue();
-  const user = state.user
+  const user = state.user;  
 
   return (
     <div className="App">
@@ -32,14 +32,12 @@ const App: React.FC = () => {
               <AppBar />
               <Switch>
                 { user ? (<>
-                  <Route path="/" component={Home} exact/>
-                </>):(<>
-                  <Route path="/signin" render={() => <Signin history={history} />} />
-                  <Route path="/reset-pass" component={ResetPass} />
-                  <Route path="/register" render={() => <Register />}/>
-                  {/* <Route path="/" render={() => <Home userID={user.uid} notes={notes} />} exact/>
-                  <Route path="/add-note" render={() => <AddNote addNote={this.addNote} />}/> */}
-                </>)
+                    <Route path="/" component={Home} exact/>
+                  </>): (<>
+                    <Route path="/signin" render={() => <Signin />} />
+                    <Route path="/reset-pass" component={ResetPass} />
+                    <Route path="/register" render={() => <Register />}/>
+                  </>)
                 }
 
                 <Route component={ NotFound } />
