@@ -7,9 +7,10 @@ const childrenRoutes = require('./api/routes/children');
 const categoriesRoutes = require('./api/routes/categories');
 const usersRoutes = require('./api/routes/users');
 const itemsRoutes = require('./api/routes/items');
+require('dotenv').config();
 
 
-mongoose.connect('mongodb+srv://pa-admin:'+ process.env.MONGO_PW +'@p-assistant-abov2.mongodb.net/test?retryWrites=true&w=majority', {
+mongoose.connect(process.env.DB_CONN, {
    useNewUrlParser: true
 });
 mongoose.Promise = global.Promise;

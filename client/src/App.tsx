@@ -5,11 +5,12 @@ import history from './utils/History';
 import { StateProvider, useStateValue } from "./State";
 import { initialState, mainReducer } from "./State/MainReducer";
 
-import NotFound from './containers/NotFound';
-import Home from './containers/Home';
-import Register from './containers/Register';
-import ResetPass from './containers/ResetPass';
-import Signin from './containers/Signin';
+import NotFound from './containers/notFound/NotFound';
+import Home from './containers/home/Home';
+import Register from './containers/register/Register';
+import ResetPass from './containers/resetPass/ResetPass';
+import UpdatePass from './containers/resetPass/UpdatePass';
+import Signin from './containers/signin/Signin';
 
 
 import Copyright from './components/Copyright';
@@ -36,6 +37,7 @@ const App: React.FC = () => {
                   </>): (<>
                     <Route path="/signin" render={() => <Signin />} />
                     <Route path="/reset-pass" component={ResetPass} />
+                    <Route path="/updatePass/:token" component={UpdatePass} />
                     <Route path="/register" render={() => <Register />}/>
                   </>)
                 }

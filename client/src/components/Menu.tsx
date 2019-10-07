@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useStateValue } from "../State";
 import { logout } from  "../State/user/Actions";
 
@@ -7,6 +7,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import MenuIcon from '@material-ui/icons/Menu';
+import { Redirect } from 'react-router';
 
 
 const useStyles = makeStyles(() =>
@@ -42,7 +43,10 @@ export default function SimpleMenu(prop: {buttonName: string, menuItems: Array<s
   
   const { buttonName, menuItems } = prop;
   const { loggedIn, normal, menu } = useStyles();
+  const [redirectTo, setRedirectTo] = useState("");
+
   const [ , dispatch ] = useStateValue();
+  
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -52,12 +56,17 @@ export default function SimpleMenu(prop: {buttonName: string, menuItems: Array<s
     setAnchorEl(null);
   };
 
-  const handleLogout = () => {    
-    dispatch(logout());
-    setAnchorEl(null);    
+  const handleLogout = () => {
+    setRedirectTo("/signin");  
+    setAnchorEl(null);
+    setTimeout(() => {
+      dispatch(logout());
+    }, 1000);
   }
 
   return (
+    <>
+    { redirectTo !== "" ? <Redirect to={redirectTo} /> : null}
     <div>
       <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
           {buttonName.length === 1? 
@@ -86,10 +95,8 @@ export default function SimpleMenu(prop: {buttonName: string, menuItems: Array<s
                   ) 
               }
           })}
-
-        {/* <Button color="inherit" onClick={e => props.logoutUser(e)}>Logout</Button> */}
-
       </Menu>
     </div>
+    </>
   );
 }
