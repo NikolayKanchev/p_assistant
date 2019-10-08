@@ -8,6 +8,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import MenuIcon from '@material-ui/icons/Menu';
 import { Redirect } from 'react-router';
+import { Link } from 'react-router-dom';
 
 
 const useStyles = makeStyles(() =>
@@ -83,15 +84,16 @@ export default function SimpleMenu(prop: {buttonName: string, menuItems: Array<s
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
-          {menuItems.map((item, index) => {
+          {menuItems.map((item: string, index) => {
               const itemName = item.charAt(0).toUpperCase() + item.slice(1)
               if (itemName === "Logout"){
               return(
                 <MenuItem key={index} onClick={handleLogout}>{itemName}</MenuItem>                    
               )
               }else{
+                const path = item.toLowerCase().replace(/ /g, "-");                
                 return(
-                    <MenuItem key={index} onClick={handleClose}>{itemName}</MenuItem>                    
+                    <MenuItem key={index} onClick={handleClose}><Link style={{textDecoration: "none"}} to={path}>{itemName}</Link></MenuItem>                    
                   ) 
               }
           })}

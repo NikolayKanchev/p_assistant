@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useStateValue } from "../State";
-// import { login } from  "../State/user/Actions";
 
 import Menu from './Menu';
 
@@ -18,23 +17,22 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     title: {
       flexGrow: 1,
+    },
+    background: {
+      background: 'linear-gradient(to left, #3494e6, #ec6ead)'
     }
   }),
 );
 
 export default function ButtonAppBar() {
-  const {root, title} = useStyles();
+  const {root, title, background} = useStyles();
   const [ { state } ] = useStateValue();
 
   const displayName = state.user !== undefined? state.user.displayName: "";
 
-  // const handleLogin = () => {
-  //   dispatch(login({id: "12345123456", displayName: "NNN"}));    
-  // }
-
   return (
     <div className={root}>
-      <AppBar position="static">
+      <AppBar className={background} position="static">
         <Toolbar>
             <Menu buttonName={"menu"} menuItems={["home", "Shared With Me", "Transfer"]}/>
             <Typography variant="h6" className={title}>

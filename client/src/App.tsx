@@ -1,5 +1,5 @@
 import React from 'react';
-import { Router, Route, Switch } from 'react-router-dom';
+import { Router, Route, Switch, Redirect } from 'react-router-dom';
 import history from './utils/History';
 
 import { StateProvider, useStateValue } from "./State";
@@ -32,14 +32,15 @@ const App: React.FC = () => {
             <div className="Main">
               <AppBar />
               <Switch>
-                { user ? (<>
+                {/* { user ? (<> */}
                     <Route path="/" component={Home} exact/>
-                  </>): (<>
-                    <Route path="/signin" render={() => <Signin />} />
+                    <Redirect path="/home" to="/" exact/>
+                  {/* </>): (<> */}
+                    <Route path="/signin" render={() => <Signin/>} />
                     <Route path="/reset-pass" component={ResetPass} />
                     <Route path="/updatePass/:token" component={UpdatePass} />
                     <Route path="/register" render={() => <Register />}/>
-                  </>)
+                  {/* </>) */}
                 }
 
                 <Route component={ NotFound } />

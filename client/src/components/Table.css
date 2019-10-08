@@ -1,0 +1,15 @@
+.icons {
+    position: absolute;
+    margin-left: -20px;
+    margin-top: -70px;
+    display: none;
+    width: 200px;
+}
+
+.icons:hover {
+    display: inline;
+}
+
+.row:hover + .icons{
+    display: inline;
+}

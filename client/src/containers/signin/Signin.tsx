@@ -33,7 +33,7 @@ const SignIn: React.FC = () => {
     setErrorMessage(message)
       setTimeout(() => {
         setErrorMessage("");
-        }, 5000);
+      }, 5000);
   }
 
   const handleSubmit = (e: React.FormEvent<any>) => {
@@ -46,10 +46,11 @@ const SignIn: React.FC = () => {
       axios.post("http://localhost:4000/users/login", { email: email, password: password })
       .then(res => {
         if (res.status === 200){
-          // localStorage.setItem('token', token);
           const { userId, displayName, token } = res.data
-          dispatch(login({id: userId, displayName: displayName, token: token}));
           setRedirectTo('/');
+          setTimeout(() => {
+            dispatch(login({id: userId, displayName: displayName, token: token}));
+          }, 2000);
         }else{
           displayError("Something went wrong! Try again!")
         }
