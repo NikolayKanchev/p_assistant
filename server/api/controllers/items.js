@@ -1,15 +1,16 @@
-const Child = require('../models/child');
-const User = require('../models/user');
+const Item = require('../models/item');
+const Category = require('../models/category');
+
 const mongoose = require('mongoose');
+const fs = require('fs')
 
 exports.get_all = (req, res, next) => {
-    Child.find()
-    .select('_id name user birthdate gender clothesSize shoeSize img')
+    Item.find( { category: req.body.category })
     .exec()
     .then(result => {
         const response = { 
             count: result.length,
-            children: result
+            items: result
         }
         res.status(200).json(response);
     })
@@ -20,9 +21,9 @@ exports.get_all = (req, res, next) => {
 }
 
 exports.get_one = (req, res, next) => {
-    const childId = req.params.childId;
+    const item = req.params.itemId;
     
-    Child.findById(childId)
+    Item.findById(item)
     .exec()
     .then(data => {
         console.log(data);
@@ -41,14 +42,14 @@ exports.get_one = (req, res, next) => {
 }
 
 exports.update = (req, res, next) => {
-    const id = req.params.childId;
+    const id = req.params.itemId;
 
     const updateOps = {};
     for(const ops of req.body){
         updateOps[ops.propName] = ops.value;
     }
 
-    Child.update({ _id: id }, {$set: updateOps })
+    Item.update({ _id: id }, { $set: updateOps })
     .exec()
     .then(result => {
         console.log(result);
@@ -60,45 +61,67 @@ exports.update = (req, res, next) => {
     });    
 }
 
-exports.delete = (req, res, next) => {
-    const id = req.params.childId;
-
-    Child.remove({_id: id})
-    .exec()
-    .then(result => {
-        res.status(200).json(result);
-    })
-    .catch(err => {
-        console.log(err);
-        res.status(500).json({ error: err });        
-    });
-}
-
-const CheckUserExist = (userId) => {
-    
+const checkItemExist = (itemId) => {
     return new Promise((resolve, reject) =>{
-        User.find({ _id: userId })
+        Item.find({ _id: itemId })
             .exec()
-            .then(user => {
-                if(user.length >= 1){
-                    resolve(true)
+            .then(item => {
+                if(item.length >= 1){
+                    resolve(item)
                 }else{
-                    reject({ message: "The user does not exist !" })
+                    reject(undefined)
                 }
             })
         }
     )
 }
 
-const CheckChildExist = (userId, name, birthdate) => {
+const deleteFile = (path) => {
     return new Promise((resolve, reject) =>{
-        Child.find({ user: userId, name: name, birthdate: birthdate })
+        fs.unlink(path , (err) => {
+            if (err){
+                reject(false);
+            }else{
+                resolve(true);
+            }
+        });
+        }
+    )
+}
+
+exports.delete = async (req, res, next) => {
+    const id = req.params.itemId;
+    const item = await checkItemExist(id);
+
+    if (item !== undefined){
+
+        const path = "./" + item[0].img;        
+        const fileDeleted = await deleteFile(path);
+
+        if (fileDeleted){
+
+            Item.deleteOne({_id: id})
             .exec()
-            .then(child => {
-                if(child.length >= 1){
-                    reject({ message: "The child already exist !"})
+            .then(() => {
+                res.status(200).json({message: "Item deleted!"});
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).json({ error: err });        
+            });
+        }
+    }
+}
+
+const checkCategoryExist = (categoryId) => {
+    return new Promise((resolve, reject) =>{
+        Category.find({ _id: categoryId })
+            .exec()
+            .then(category => {
+                if(category.length >= 1){
+                    resolve(true)
                 }else{
-                    resolve(false)
+                    reject(false)
                 }
             })
         }
@@ -107,26 +130,23 @@ const CheckChildExist = (userId, name, birthdate) => {
 
 exports.add = async (req, res, next) => {
     try{
-        const userExist= await CheckUserExist(req.body.userId);
-        const childExist = userExist? await CheckChildExist(req.body.userId, req.body.name, req.body.birthdate): false;        
+        const categoryExist = await checkCategoryExist(req.body.category);
 
-        if(!childExist){
-            const child = new Child({
+        if(categoryExist){
+            const item = new Item({
                 _id: new mongoose.Types.ObjectId(),
-                user: req.body.userId,
+                category: req.body.category,
                 name: req.body.name,
-                birthdate: req.body.birthdate,
-                gender: req.body.gender,
-                clothesSize: req.body.clothesSize,
-                shoeSize: req.body.shoeSize,
+                size: req.body.size,
+                price: req.body.price,
                 img: req.file !== undefined? req.file.path: ""
             });
         
-            child.save()
+            item.save()
             .then(result => {
                 res.status(201).json({
-                    message: "children POST request",
-                    child: result
+                    message: "Item Saved!",
+                    item: result
                 });
             })
         }
