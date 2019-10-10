@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
-import { useStateValue } from "../State";
-import { logout } from  "../State/user/Actions";
+import React from 'react';
 
 import Button from '@material-ui/core/Button';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import MenuIcon from '@material-ui/icons/Menu';
-import { Redirect } from 'react-router';
 import { Link } from 'react-router-dom';
+import { MenuProps } from '../types';
 
 
 const useStyles = makeStyles(() =>
@@ -30,24 +28,11 @@ const useStyles = makeStyles(() =>
   }),
 );
 
-const variantIcon = {
-    menu: MenuIcon
-};
-
-interface CustomProps{
-    variant: keyof typeof variantIcon;
-}
-
-
-export default function SimpleMenu(prop: {buttonName: string, menuItems: Array<string>}) {
+const SimpleMenu = (props: MenuProps) =>{
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   
-  const { buttonName, menuItems } = prop;
-  const { loggedIn, normal, menu } = useStyles();
-  const [redirectTo, setRedirectTo] = useState("");
-
-  const [ , dispatch ] = useStateValue();
-  
+  const { buttonName, menuItems } = props;
+  const { loggedIn, normal, menu } = useStyles();  
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -58,16 +43,14 @@ export default function SimpleMenu(prop: {buttonName: string, menuItems: Array<s
   };
 
   const handleLogout = () => {
-    setRedirectTo("/signin");  
+    if (props.logout !== undefined){
+      props.logout();
+    }
     setAnchorEl(null);
-    setTimeout(() => {
-      dispatch(logout());
-    }, 1000);
   }
 
   return (
     <>
-    { redirectTo !== "" ? <Redirect to={redirectTo} /> : null}
     <div>
       <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
           {buttonName.length === 1? 
@@ -102,3 +85,5 @@ export default function SimpleMenu(prop: {buttonName: string, menuItems: Array<s
     </>
   );
 }
+
+export default SimpleMenu;

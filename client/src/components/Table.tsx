@@ -116,7 +116,9 @@ export default function CustomPaginationActionsTable(props: { items: Array<Item>
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const { items } = props;
 
-  const emptyRows = rowsPerPage - Math.min(rowsPerPage, items.length - page * rowsPerPage);
+  const length = items !== undefined ? items.length : 0;
+  const emptyRows = rowsPerPage - Math.min(rowsPerPage, length - page * rowsPerPage);
+  
 
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null,
@@ -134,60 +136,62 @@ export default function CustomPaginationActionsTable(props: { items: Array<Item>
 
   return (
     <Paper className={classes.root}>
-      <div className={classes.tableWrapper}>
-        <Table className={classes.table}>
-          <TableBody>
-            <TableRow className={classes.head}>
-                <TableCell component="th" scope="row">
-                  Name
-                </TableCell>
-                <TableCell align="right">Size</TableCell>
-                <TableCell align="right">Price</TableCell>
-                <TableCell align="right">Image</TableCell>
-            </TableRow>
-            {items.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((item: Item) => (
-            <>
-              
-                <TableRow className="row" key={item._id}>
-                   <TableCell component="th" scope="row">
-                   {item.name}
-                   </TableCell>
-                   <TableCell align="right">{item.size}</TableCell>
-                   <TableCell align="right">{item.price}</TableCell>
-                   <TableCell align="right"><img className={classes.img} src={"http://localhost:4000/" + item.img} alt=""/></TableCell>
-                </TableRow>    
-                <span className="icons">
-                   <Button><DeleteIcon/></Button>
-                   <Button><CreateIcon/></Button>
-                </span>
-            </>
-            ))}
-            {emptyRows > 0 && (
-              <TableRow style={{ height: 53 * emptyRows }}>
-                <TableCell colSpan={6} />
+      { items !== undefined ? (
+        <div className={classes.tableWrapper}>
+          <Table className={classes.table}>
+            <TableBody>
+              <TableRow className={classes.head}>
+                  <TableCell component="th" scope="row">
+                    Name
+                  </TableCell>
+                  <TableCell align="center">Actions</TableCell>
+                  <TableCell align="right">Size</TableCell>
+                  <TableCell align="right">Price</TableCell>
+                  <TableCell align="right">Image</TableCell>
               </TableRow>
-            )}
-          </TableBody>
-          <TableFooter>
-            <TableRow>
-              <TablePagination
-                rowsPerPageOptions={[5, 10, 25]}
-                colSpan={3}
-                count={items.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                SelectProps={{
-                  inputProps: { 'aria-label': 'rows per page' },
-                  native: true,
-                }}
-                onChangePage={handleChangePage}
-                onChangeRowsPerPage={handleChangeRowsPerPage}
-                ActionsComponent={TablePaginationActions}
-              />
-            </TableRow>
-          </TableFooter>
-        </Table>
-      </div>
+              {items.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((item: Item) => (
+              <>
+                  <TableRow key={item._id}>
+                    <TableCell component="th" scope="row">
+                    {item.name}
+                    </TableCell>
+                    <TableCell align="center">
+                          <Button><DeleteIcon/></Button>
+                          <Button><CreateIcon/></Button>
+                    </TableCell>
+                    <TableCell align="right">{item.size}</TableCell>
+                    <TableCell align="right">{item.price}</TableCell>
+                    <TableCell align="right"><img className={classes.img} src={"http://localhost:4000/" + item.img} alt=""/></TableCell>
+                  </TableRow>
+              </>
+              ))}
+              {emptyRows > 0 && (
+                <TableRow style={{ height: 53 * emptyRows }}>
+                  <TableCell colSpan={6} />
+                </TableRow>
+              )}
+            </TableBody>
+            <TableFooter>
+              <TableRow>
+                <TablePagination
+                  rowsPerPageOptions={[5, 10, 25]}
+                  colSpan={3}
+                  count={items.length}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  SelectProps={{
+                    inputProps: { 'aria-label': 'rows per page' },
+                    native: true,
+                  }}
+                  onChangePage={handleChangePage}
+                  onChangeRowsPerPage={handleChangeRowsPerPage}
+                  ActionsComponent={TablePaginationActions}
+                />
+              </TableRow>
+            </TableFooter>
+          </Table>
+        </div>
+      ): null }
     </Paper>
   );
 }

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useStateValue } from "../State";
 
 import Menu from './Menu';
 
@@ -9,6 +8,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
+import { AppBarProps } from '../types';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -24,11 +24,15 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-export default function ButtonAppBar() {
+const ButtonAppBar:React.FC<AppBarProps> = (props: AppBarProps) => {
   const {root, title, background} = useStyles();
-  const [ { state } ] = useStateValue();
+  const { user, logout } = props;
 
-  const displayName = state.user !== undefined? state.user.displayName: "";
+  const displayName = user !== undefined? user.displayName: "";
+
+  const logoutUser = () => {
+    logout();
+  }
 
   return (
     <div className={root}>
@@ -43,10 +47,12 @@ export default function ButtonAppBar() {
             (<>
               <Button color="inherit"><Link style={{textDecoration: 'none', color: 'inherit'}} to="/signin">Login</Link></Button>
             </>) :(<>
-              <Menu buttonName={displayName[0]} menuItems={["logout"]} />
+              <Menu buttonName={displayName[0]} menuItems={["logout"]} logout={logoutUser} />
             </>)}
         </Toolbar>
       </AppBar>
     </div>
   );
 }
+
+export default ButtonAppBar;

@@ -3,8 +3,6 @@ import axios from 'axios';
 
 import Message from '../../components/Message';
 import { validatePass, validateEmail } from '../../components/Validators';
-import { useStateValue } from "../../State";
-import { login } from  "../../State/user/Actions";
 
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
@@ -18,16 +16,16 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import { Link, Redirect } from 'react-router-dom';
+import { SignInProps } from '../../types';
 
-const SignIn: React.FC = () => {
+
+const SignIn: React.FC<SignInProps> = (props: SignInProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errPass, setErrPass] = useState(false);
   const [errEmail, setErrEmail] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [redirectTo, setRedirectTo] = useState("");
-
-  const [ ,dispatch ] = useStateValue();
 
   const displayError = (message: string) => {
     setErrorMessage(message)
@@ -46,11 +44,9 @@ const SignIn: React.FC = () => {
       axios.post("http://localhost:4000/users/login", { email: email, password: password })
       .then(res => {
         if (res.status === 200){
-          const { userId, displayName, token } = res.data
+          const { userId, displayName, token } = res.data;
           setRedirectTo('/');
-          setTimeout(() => {
-            dispatch(login({id: userId, displayName: displayName, token: token}));
-          }, 2000);
+          props.setUserState({ id: userId, displayName: displayName, token: token })
         }else{
           displayError("Something went wrong! Try again!")
         }

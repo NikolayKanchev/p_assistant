@@ -1,8 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
-import { useStateValue } from '../State';
-import axios from 'axios';
 import Avatar from './Avatar';
 import { Button } from '@material-ui/core';
 
@@ -14,7 +12,6 @@ const useStyles = makeStyles((theme: Theme) =>
     background: {
       backgroundColor: 'aliceblue',
       color: 'black',
-      // borderBottom: "1px solid #3494e6"
     },
     list: {
       display: "flex",

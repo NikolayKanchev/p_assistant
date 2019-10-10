@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const fs = require('fs')
 
 exports.get_all = (req, res, next) => {
-    Item.find( { category: req.body.category })
+    Item.find( { category: req.body.categoryId })
     .exec()
     .then(result => {
         const response = { 
