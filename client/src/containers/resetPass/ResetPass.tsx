@@ -10,7 +10,7 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import Message from '../../components/Message';
-import { validateEmail } from '../../components/Validators';
+import { validateEmail } from '../../utils/Validators';
 import { RouteComponentProps } from 'react-router';
 
 const ResetPass: React.FC<RouteComponentProps> = (props) => {

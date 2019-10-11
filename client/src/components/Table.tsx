@@ -16,7 +16,6 @@ import { Item } from '../types';
 import DeleteIcon from '@material-ui/icons/Delete';
 import CreateIcon from '@material-ui/icons/Create';
 import { Button } from '@material-ui/core';
-import './Table.css';
 
 
 const useStyles1 = makeStyles((theme: Theme) =>
@@ -110,11 +109,16 @@ const useStyles2 = makeStyles((theme: Theme) =>
   }),
 );
 
-export default function CustomPaginationActionsTable(props: { items: Array<Item> }) {
+type TableProps = {
+  items: Array<Item>;
+  deleteItem: (itemId: string) => void;
+}
+
+export default function CustomPaginationActionsTable(props: TableProps) {
   const classes = useStyles2();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const { items } = props;
+  const { items, deleteItem } = props;
 
   const length = items !== undefined ? items.length : 0;
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, length - page * rowsPerPage);
@@ -134,9 +138,12 @@ export default function CustomPaginationActionsTable(props: { items: Array<Item>
     setPage(0);
   };
 
+  const handleDeleteItem = (itemId: string) => {
+      deleteItem(itemId);    
+  }
+
   return (
     <Paper className={classes.root}>
-      { items !== undefined ? (
         <div className={classes.tableWrapper}>
           <Table className={classes.table}>
             <TableBody>
@@ -149,6 +156,7 @@ export default function CustomPaginationActionsTable(props: { items: Array<Item>
                   <TableCell align="right">Price</TableCell>
                   <TableCell align="right">Image</TableCell>
               </TableRow>
+              { items !== undefined ? (<>
               {items.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((item: Item) => (
               <>
                   <TableRow key={item._id}>
@@ -156,7 +164,7 @@ export default function CustomPaginationActionsTable(props: { items: Array<Item>
                     {item.name}
                     </TableCell>
                     <TableCell align="center">
-                          <Button><DeleteIcon/></Button>
+                          <Button onClick={() => handleDeleteItem(item._id)}><DeleteIcon/></Button>
                           <Button><CreateIcon/></Button>
                     </TableCell>
                     <TableCell align="right">{item.size}</TableCell>
@@ -165,6 +173,7 @@ export default function CustomPaginationActionsTable(props: { items: Array<Item>
                   </TableRow>
               </>
               ))}
+              </>): null }
               {emptyRows > 0 && (
                 <TableRow style={{ height: 53 * emptyRows }}>
                   <TableCell colSpan={6} />
@@ -176,7 +185,7 @@ export default function CustomPaginationActionsTable(props: { items: Array<Item>
                 <TablePagination
                   rowsPerPageOptions={[5, 10, 25]}
                   colSpan={3}
-                  count={items.length}
+                  count={items !== undefined ? items.length: 0}
                   rowsPerPage={rowsPerPage}
                   page={page}
                   SelectProps={{
@@ -191,7 +200,6 @@ export default function CustomPaginationActionsTable(props: { items: Array<Item>
             </TableFooter>
           </Table>
         </div>
-      ): null }
     </Paper>
   );
 }

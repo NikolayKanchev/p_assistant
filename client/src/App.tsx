@@ -12,17 +12,16 @@ import Signin from './containers/signin/Signin';
 import Copyright from './components/Copyright';
 import AppBar from './components/AppBar';
 
+import { User } from './types';
+
 import './App.css';
 import Box from '@material-ui/core/Box';
 import Container from '@material-ui/core/Container';
-import { User } from './types';
 
 
 const App: React.FC = () => {
   const [user, setUser] = useState();
   const [redirectTo, setRedirectTo] = useState("");
-
-  console.log(user);
   
   const setUserState = (user: User) => {
     setUser(user);    
@@ -61,5 +60,5 @@ const App: React.FC = () => {
     </div>
   );
 }
-
+ 
 export default App;

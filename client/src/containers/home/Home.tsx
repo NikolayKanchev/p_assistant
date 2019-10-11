@@ -1,24 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import axios from 'axios';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
 import ChildrenList from '../../components/ChildrenList';
-import MainContent from '../../components/MainContent';
+import MainContent from '../../components/mainContent/CategoryContent';
 import { Child, Category, User } from '../../types'
+import { fetchChildren, fetchCategories } from '../../utils/FetchData';
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     list: {
       display: "flex",
       flexWrap: "wrap",
       justifyContent: "center",
-      margin: "10px"
+      margin: "20px",
     },
     hidden: {
         visibility: "hidden",
-        margin: "10px"
-    },
-    card: {
-        margin: "10px"
     }
   }),
 );
@@ -28,59 +24,38 @@ type MyProps = {
 }
 
 const Home: React.FC<MyProps> = (props: MyProps) => {
-    const {list, hidden, card} = useStyles();
+    const {list, hidden} = useStyles();
     const { user } = props;
 
     const token = user !== undefined? user.token: "";
+    
     const authorization = {
         headers: {'Authorization': `Bearer ${token}`}
     };
 
     const [chosenChild, setChosenChild] = useState();
     const [children, setChildren] = useState();
+    const [categories, setCategories] = useState();
 
-    useEffect(() => {        
-        if (token !== ""){
-           axios.get("http://localhost:4000/children", authorization)
-            .then(res => {
-                if (res.status === 200){
-                    const childrenArr: Array<Child> = res.data.children;
-                    childrenArr.map((child: Child) => {
-                        return (
-                            axios.post("http://localhost:4000/categories/all", { childId: child._id }, authorization)
-                            .then(res => {    
-                                if (res.status === 200){
-                                    child.categories = res.data.categories;
-                                    child.categories.map((category: Category) => {
-                                        return (
-                                            axios.post("http://localhost:4000/items/all", { categoryId: category._id }, authorization)
-                                            .then(res => {
-                                                if (res.status === 200){            
-                                                    category.items = res.data.items;
-                                                }
-                                            })
-                                        )
-                                    })
-                                }
-                            })
-                        )
-                    })
-                    console.log(childrenArr);
-                    
-                    setChildren(childrenArr);
-                    setChosenChild(childrenArr[0])
-                }else{
-                    setChildren([]);
-                }
-            })
-            .catch(err => {
-                console.log("Something went wrong! " + err);
-            }) 
-        }
+    useEffect(() => {
+        fetchChildren(authorization).then(childrenArr => {
+            setChosenChild(childrenArr[0]);
+            setChildren(childrenArr);
+
+            fetchCategories(childrenArr[0], authorization).then(category => {
+                setCategories(category);
+            });
+        });
     }, []);
+
+    console.log(chosenChild);
+    
 
   const handleChangeChild = (child: Child) => {
     setChosenChild(child);
+    fetchCategories(child, authorization).then(category => {
+        setCategories(category);
+    });
   }
 
   return (
@@ -88,18 +63,18 @@ const Home: React.FC<MyProps> = (props: MyProps) => {
         { chosenChild !== undefined ? (
         <>
             <ChildrenList children={children} handleChangeChild={handleChangeChild} chosenChild={chosenChild} />
-            { chosenChild.categories !== undefined ? (
+
+            { categories !== undefined ? (
                 <div className={list}>
-                    {chosenChild.categories.map((category: Category) =>
-                            <div key={category._id} className={card}>
-                                <MainContent category={category} items={category.items} /> 
-                            </div>
+                    {categories.map((category: Category) =>
+                        <MainContent key={category._id} category={category} token={token}/> 
                     )}
                     <div className={hidden}>
-                        <MainContent category={chosenChild.categories[0]} items={chosenChild.categories[0].items} /> 
+                        <MainContent category={categories[0]}  token={token}/> 
                     </div>
                 </div>
             ): null }
+
         </>
         ): null }    
     </>

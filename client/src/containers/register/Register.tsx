@@ -3,7 +3,7 @@ import { Link, Redirect } from 'react-router-dom';
 import axios from 'axios';
 
 import Message from '../../components/Message';
-import { validateEmail, validatePass, validateName } from '../../components/Validators';
+import { validateEmail, validatePass, validateName } from '../../utils/Validators';
 
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';

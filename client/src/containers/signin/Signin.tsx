@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 import Message from '../../components/Message';
-import { validatePass, validateEmail } from '../../components/Validators';
+import { validatePass, validateEmail } from '../../utils/Validators';
 
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';

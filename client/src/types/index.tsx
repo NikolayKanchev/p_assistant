@@ -7,14 +7,12 @@ export type Child = {
     clothesSize: string,
     shoeSize: string,
     img: string
-    categories: Array<Category>
 }
 
 export type Category = {
     name: string,
     _id: string,
     child: string,
-    items: Array<Item>
 }
 
 export type Item = {
@@ -46,3 +44,16 @@ export type MenuProps = {
     menuItems: Array<string>,
     logout?:() => void
   }
+
+export type MainContentProps = {
+    category: Category,
+    token: string 
+}
+
+export type HomeProps = {
+    user: User;
+}
+
+export type Authorization = {
+    headers: {'Authorization': string}
+};
