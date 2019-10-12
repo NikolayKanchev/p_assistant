@@ -158,7 +158,6 @@ export default function CustomPaginationActionsTable(props: TableProps) {
               </TableRow>
               { items !== undefined ? (<>
               {items.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((item: Item) => (
-              <>
                   <TableRow key={item._id}>
                     <TableCell component="th" scope="row">
                     {item.name}
@@ -171,7 +170,6 @@ export default function CustomPaginationActionsTable(props: TableProps) {
                     <TableCell align="right">{item.price}</TableCell>
                     <TableCell align="right"><img className={classes.img} src={"http://localhost:4000/" + item.img} alt=""/></TableCell>
                   </TableRow>
-              </>
               ))}
               </>): null }
               {emptyRows > 0 && (

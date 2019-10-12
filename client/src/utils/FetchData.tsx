@@ -26,3 +26,8 @@ export const deleteItem = async (itemId: string, authorization: Authorization) =
     
     return data;
 }
+
+export const addItem = async (data: FormData, authorization: Authorization) => {
+    const res = await axios.post("http://localhost:4000/items/", data, authorization);
+    return res;
+};

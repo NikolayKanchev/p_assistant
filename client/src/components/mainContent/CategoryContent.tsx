@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Table from '../Table';
+import Dialog from '../ItemDialog';
 import { MainContentProps } from '../../types';
 
 import './CategoryContent.css';
@@ -12,6 +13,7 @@ import { fetchItems, deleteItem } from '../../utils/FetchData';
 const MainContent = (props: MainContentProps) => {
   const { category, token } = props;
   const [items, setItems] = useState();
+  const [openDialog, setOpenDialog] = useState(false);
 
   const authorization = {
     headers: {'Authorization': `Bearer ${token}`}
@@ -27,13 +29,23 @@ const MainContent = (props: MainContentProps) => {
     deleteItem(itemId, authorization);
   }
 
+  const handleAddItemDialog = () => {
+    if (openDialog){
+      setOpenDialog(false);
+    }else{
+      setOpenDialog(true);
+    }
+  }
+
   return (
-    <>
     <div>
+        { openDialog ? 
+          <Dialog closeDialog={handleAddItemDialog} category={category} authorization={authorization}/>
+        : null }
         <Card className="card">
           <div className="category-name-cont">
               <div className="addIcon">
-                <Button>
+                <Button onClick={handleAddItemDialog}>
                   <AddBoxIcon />
                 </Button>
               </div>
@@ -42,7 +54,6 @@ const MainContent = (props: MainContentProps) => {
           </div>
         </Card>
     </div>
-    </>
   );
 }
 
