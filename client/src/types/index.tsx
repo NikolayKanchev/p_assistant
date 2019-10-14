@@ -42,10 +42,14 @@ export type AppBarProps = {
 export type MenuProps = {
     buttonName: string, 
     menuItems: Array<string>,
-    logout?:() => void
+    logout?:() => void,
+    reloadChildren?:() => void,
+    category?: Category,
+    child?: Child,
+    token?: string
   }
 
-export type MainContentProps = {
+export type CategoryContentProps = {
     category: Category,
     token: string 
 }

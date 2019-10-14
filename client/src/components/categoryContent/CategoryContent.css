@@ -12,6 +12,7 @@
 .addIcon{
     position: absolute;
     width: 20px;
+    margin-top: -50px;
 }
 
 .card{

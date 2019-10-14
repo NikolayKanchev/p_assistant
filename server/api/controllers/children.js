@@ -1,6 +1,7 @@
 const Child = require('../models/child');
 const User = require('../models/user');
 const mongoose = require('mongoose');
+const fs = require('fs')
 
 exports.get_all = (req, res, next) => {
     Child.find()
@@ -40,30 +41,58 @@ exports.get_one = (req, res, next) => {
     })
 }
 
-exports.update = (req, res, next) => {
+const deleteFile = (path) => {
+    return new Promise((resolve, reject) =>{
+        fs.unlink(path , (err) => {
+            if (err){
+                reject(false);
+            }else{
+                resolve(true);
+            }
+        });
+        }
+    )
+}
+
+exports.update = async (req, res, next) => {
     const id = req.params.childId;
+    
+    const { name, gender, clothesSize, shoeSize, birthdate } = req.body;
+    const img = req.file;
 
-    const updateOps = {};
-    for(const ops of req.body){
-        updateOps[ops.propName] = ops.value;
+    const child = await CheckChildExistance(id);
+
+    if (child !== undefined){
+        
+        const path = "./" + child[0].img;
+                
+        const fileDeleted = await deleteFile(path);
+
+        if (fileDeleted){
+            Child.updateOne({ _id: id }, { 
+                name: name,
+                // birthdate: birthdate,
+                gender: gender,
+                clothesSize: clothesSize,
+                shoeSize: shoeSize,
+                img: img.path
+            })
+            .exec()
+            .then(result => {
+                res.status(200).json(result);
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).json({ error: err });
+            });    
+        }
     }
-
-    Child.update({ _id: id }, {$set: updateOps })
-    .exec()
-    .then(result => {
-        console.log(result);
-        res.status(200).json(result);
-    })
-    .catch(err => {
-        console.log(err);
-        res.status(500).json({ error: err });
-    });    
 }
 
 exports.delete = (req, res, next) => {
     const id = req.params.childId;
 
-    Child.remove({_id: id})
+    Child.deleteOne({_id: id})
     .exec()
     .then(result => {
         res.status(200).json(result);
@@ -99,6 +128,21 @@ const CheckChildExist = (userId, name, birthdate) => {
                     reject({ message: "The child already exist !"})
                 }else{
                     resolve(false)
+                }
+            })
+        }
+    )
+}
+
+const CheckChildExistance = (id) => {
+    return new Promise((resolve, reject) =>{
+        Child.find({ _id: id })
+            .exec()
+            .then(child => {
+                if(child.length >= 1){
+                    resolve(child);
+                }else{
+                    resolve(undefined);
                 }
             })
         }

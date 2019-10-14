@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
 import ChildrenList from '../../components/ChildrenList';
-import MainContent from '../../components/mainContent/CategoryContent';
+import Button from '../../components/Button';
+import CategoryContent from '../../components/categoryContent/CategoryContent';
 import { Child, Category, User } from '../../types'
 import { fetchChildren, fetchCategories } from '../../utils/FetchData';
+import AddButton from '../../components/Button';
+
+import { createStyles, makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -11,11 +14,19 @@ const useStyles = makeStyles(() =>
       display: "flex",
       flexWrap: "wrap",
       justifyContent: "center",
-      margin: "20px",
     },
     hidden: {
         visibility: "hidden",
-    }
+        width: "655px",
+    },
+    addCategoryBtn: {
+        marginTop: 30
+    },
+    addBtn: {
+        position: "absolute",
+        marginTop: "35px",
+        marginLeft: "40%"
+    },
   }),
 );
 
@@ -24,36 +35,39 @@ type MyProps = {
 }
 
 const Home: React.FC<MyProps> = (props: MyProps) => {
-    const {list, hidden} = useStyles();
+    const {list, hidden, addCategoryBtn, addBtn} = useStyles();
     const { user } = props;
 
     const token = user !== undefined? user.token: "";
-    
-    const authorization = {
-        headers: {'Authorization': `Bearer ${token}`}
-    };
 
     const [chosenChild, setChosenChild] = useState();
     const [children, setChildren] = useState();
     const [categories, setCategories] = useState();
 
-    useEffect(() => {
-        fetchChildren(authorization).then(childrenArr => {
+    const fetchData = () => {
+        fetchChildren(token).then(childrenArr => {
             setChosenChild(childrenArr[0]);
             setChildren(childrenArr);
 
-            fetchCategories(childrenArr[0], authorization).then(category => {
-                setCategories(category);
-            });
+            if (childrenArr.length > 0){
+                fetchCategories(childrenArr[0], token).then(category => {
+                    setCategories(category);
+                }); 
+            }
         });
-    }, []);
+    }
 
-    console.log(chosenChild);
-    
+    useEffect(() => {
+        let isSubscribed = true;
+        if(isSubscribed){
+            fetchData();
+        }
+        return () => { isSubscribed = false };
+    }, [token]);    
 
   const handleChangeChild = (child: Child) => {
     setChosenChild(child);
-    fetchCategories(child, authorization).then(category => {
+    fetchCategories(child, token).then(category => {
         setCategories(category);
     });
   }
@@ -62,21 +76,25 @@ const Home: React.FC<MyProps> = (props: MyProps) => {
     <>
         { chosenChild !== undefined ? (
         <>
-            <ChildrenList children={children} handleChangeChild={handleChangeChild} chosenChild={chosenChild} />
+            <ChildrenList children={children} handleChangeChild={handleChangeChild} chosenChild={chosenChild} token={token} reloadhildren={() => fetchData()} />
+            <div className={addCategoryBtn}>
+                <Button color="secondary" variant="outlined" text="Add New Category" />
+            </div>
 
             { categories !== undefined ? (
                 <div className={list}>
                     {categories.map((category: Category) =>
-                        <MainContent key={category._id} category={category} token={token}/> 
+                        <CategoryContent key={category._id} category={category} token={token}/>
                     )}
-                    <div className={hidden}>
-                        <MainContent category={categories[0]}  token={token}/> 
-                    </div>
+                    <div className={hidden}></div>
                 </div>
             ): null }
-
         </>
-        ): null }    
+        ):
+        <div className={addBtn}>
+            <AddButton color="secondary" variant="outlined" text="Add Child" />
+        </div>
+        }    
     </>
   );
 }

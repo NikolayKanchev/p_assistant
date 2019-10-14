@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { addItem, updateItem } from '../utils/FetchData';
-import { Item } from '../types';
+import React, { useState } from 'react';
+import { addChild, updateChild } from '../utils/FetchData';
+import { Child } from '../types';
 
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
@@ -14,102 +14,117 @@ import CreateIcon from '@material-ui/icons/Create';
 
 type DialogProps = {
     type: string;
-    categoryId: string;
     token: string;
-    item?: Item;
-    reload?: () => void;
+    child: Child;
+    reload: () => void;
+    closeMenu?: () => void;
 }
 
 export default function FormDialog(props: DialogProps) {
-  const { type, categoryId, token } = props;
+  const { type, token, reload } = props;
 
   const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [errName, setErrName] = useState(false);
-  const [size, setSize] = useState("");
-  const [price, setPrice] = useState("");
-  const [errPrice, setErrPrice] = useState(false);
-  const [image, setImage] = useState();
+  const [child, setChild] = useState(props.child);
   const [imageName, setImageName] = useState("");
+
+  const [errName, setErrName] = useState(false);
+  const [errGender, setErrGender] = useState(false);
+  const [errClothesSize, setErrClothesSize] = useState(false);
+  const [errShoeSize, setErrShoeSize] = useState(false);
 
   const handleClickOpen = () => {
     setOpen(true);
-  };
-
-  useEffect(() => {
-    let subscribed = true;
-
-    if (props.item !== undefined){
-      const { name, size, price, img } = props.item;
-      if(subscribed){
-        setName(name);
-        setSize("" + size);
-        setPrice("" + price);
-        setImageName(img.split("\\")[1]);
-      }
+    if (props.closeMenu !== undefined){
+      props.closeMenu();
     }
-    return () => { subscribed = false; }
-  }, [setName, setSize, setPrice, setImage, props.item]);
+  }
 
   const handleClose = () => {
     setOpen(false);
   }; 
 
   const handleClickSave = () => {
-    const data = new FormData();
-    data.append('category', categoryId);
-    data.append('name', name);
-    data.append('size', size);
-    data.append('price', price);
-    data.append('img', image);    
-    
-    if (props.type === "add"){
-      addItem(data, token).then(() => {
-        if(props.reload !== undefined){
-          props.reload();
-        }
-      });
-    }
-    if (props.item !== undefined){
-      data.append('imgName', imageName);
-      updateItem(data, token, props.item._id).then(() => {
-        if(props.reload !== undefined){
-          props.reload();
-        }
-      });
-    }
-    
     handleClose();
+
+    const data = new FormData();
+    const entries = Object.entries(child);
+
+    if (type === "add"){
+      for (let [key, value] of entries) {
+        data.append(key, value);
+      }
+
+      addChild(data, token).then(() => {
+        handleClose();
+          reload();
+      });
+    }
+
+    if (type === "update"){
+      
+      for (let [key, value] of entries) {
+        if ( key !== "_id" && key !== "user"){
+          data.append(key, value);
+        }
+      }
+
+      updateChild(data, token, child._id).then(() => {
+        handleClose();
+        if(props.reload !== undefined){
+          props.reload();
+        }
+      });
+    }
   }
 
   const handleChange = (e: React.FormEvent<any>) => {
     const { name, value } = e.currentTarget;
 
+    const childToUpdate: Child = child;
+
     switch(name){
       case "image":          
-        setImage(e.currentTarget.files[0]);
+        childToUpdate.img = e.currentTarget.files[0];
         setImageName(e.currentTarget.files[0].name);
         break;
       case "name":
-        setName(value);
+        childToUpdate.name = value;
         if (value === ""){
           setErrName(true);
         }else{
           setErrName(false);
         }
         break;
-      case "size":
-        setSize(value);
+      case "birthdate":
+          childToUpdate.birthdate = value;
         break;
-      case "price":
-        setPrice(value);
-        if (value === ""){
-          setErrPrice(true);
-        }else{
-          setErrPrice(false);
-        }
+      case "gender":
+          childToUpdate.gender = value;
+          if (value === ""){
+            setErrGender(true);
+          }else{
+            setErrGender(false);
+          }
+        break;
+        case "clothesSize":
+          childToUpdate.clothesSize = value;
+          if (value === ""){
+            setErrClothesSize(true);
+          }else{
+            setErrClothesSize(false);
+          }
+        break;
+        case "shoeSize":
+          childToUpdate.clothesSize = value;
+          if (value === ""){
+            setErrShoeSize(true);
+          }else{
+            setErrShoeSize(false);
+          }
         break;
     }
+
+    setChild(childToUpdate);
   }
 
   return (
@@ -133,31 +148,47 @@ export default function FormDialog(props: DialogProps) {
                     autoComplete="name"
                     autoFocus
                     error={errName}
-                    value={name}
+                    value={child.name}
                     onChange={handleChange}
                 />
-                <TextField
-                    variant="outlined"
-                    margin="dense"
-                    fullWidth
-                    id="size"
-                    label="Size"
-                    name="size"
-                    autoComplete="size"
-                    value={size}
-                    onChange={handleChange}
-                />
-                <TextField
+                  {/* Date here */}
+
+                  <TextField
                     variant="outlined"
                     margin="dense"
                     required
                     fullWidth
-                    id="price"
-                    label="Price"
-                    name="price"
-                    autoComplete="price"
-                    error={errPrice}
-                    value={price}
+                    id="gender"
+                    label="Gender"
+                    name="gender"
+                    autoComplete="gender"
+                    autoFocus
+                    error={errGender}
+                    value={child.gender}
+                    onChange={handleChange}
+                />
+                <TextField
+                    variant="outlined"
+                    margin="dense"
+                    fullWidth
+                    id="clothesSize"
+                    label="Clothes Size"
+                    name="clothesSize"
+                    autoComplete="clothesSize"
+                    error={errClothesSize}
+                    value={child.clothesSize}
+                    onChange={handleChange}
+                />
+                <TextField
+                    variant="outlined"
+                    margin="dense"
+                    fullWidth
+                    id="shoeSize"
+                    label="Shoe Size"
+                    name="shoeSize"
+                    autoComplete="shoeSize"
+                    error={errShoeSize}
+                    value={child.shoeSize}
                     onChange={handleChange}
                 />
                 <input
@@ -179,7 +210,7 @@ export default function FormDialog(props: DialogProps) {
                 <Button onClick={handleClose} color="primary">
                     Cancel
                 </Button>
-                { errName || errPrice || image === undefined ? 
+                { errName || errGender || errShoeSize || errClothesSize === undefined ? 
                 <Button 
                     disabled
                     variant="contained"
@@ -190,7 +221,6 @@ export default function FormDialog(props: DialogProps) {
                 </Button>
                 : (
                 <Button 
-                    // type="submit"
                     variant="contained"
                     className="submit" 
                     color="primary"

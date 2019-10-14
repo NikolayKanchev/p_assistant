@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { Link, Redirect } from 'react-router-dom';
 
 import Message from '../../components/Message';
+import { SignInProps } from '../../types';
+import { loginRequest } from '../../utils/FetchData';
 import { validatePass, validateEmail } from '../../utils/Validators';
 
 import Avatar from '@material-ui/core/Avatar';
@@ -15,8 +17,6 @@ import Box from '@material-ui/core/Box';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
-import { Link, Redirect } from 'react-router-dom';
-import { SignInProps } from '../../types';
 
 
 const SignIn: React.FC<SignInProps> = (props: SignInProps) => {
@@ -40,8 +40,8 @@ const SignIn: React.FC<SignInProps> = (props: SignInProps) => {
     if(email === ""){ setErrEmail(true); }
     if(password === ""){ setErrPass(true); }    
 
-    if(!errPass && !errEmail && email !== "" && password !== ""){ 
-      axios.post("http://localhost:4000/users/login", { email: email, password: password })
+    if(!errPass && !errEmail && email !== "" && password !== ""){
+      loginRequest(email, password)
       .then(res => {
         if (res.status === 200){
           const { userId, displayName, token } = res.data;

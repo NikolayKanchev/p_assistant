@@ -1,4 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Item, Category } from '../types';
+import Dialog from './ItemDialog';
+import { fetchItems, deleteItem } from '../utils/FetchData';
+
 import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -12,9 +16,7 @@ import FirstPageIcon from '@material-ui/icons/FirstPage';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import LastPageIcon from '@material-ui/icons/LastPage';
-import { Item } from '../types';
 import DeleteIcon from '@material-ui/icons/Delete';
-import CreateIcon from '@material-ui/icons/Create';
 import { Button } from '@material-ui/core';
 
 
@@ -105,20 +107,41 @@ const useStyles2 = makeStyles((theme: Theme) =>
     head: {
       backgroundColor: "#e4e1fc",
     },
-    
+    actions: {
+      display: "flex",
+      marginTop: "8.5px",
+      position: "absolute"
+    }
   }),
 );
 
 type TableProps = {
-  items: Array<Item>;
-  deleteItem: (itemId: string) => void;
+  category: Category;
+  token: string;
 }
 
 export default function CustomPaginationActionsTable(props: TableProps) {
   const classes = useStyles2();
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const { items, deleteItem } = props;
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const { category, token } = props;
+  const [items, setItems] = useState();
+
+  const fetchData = () => {
+    fetchItems(category, token).then(itemsArr => {
+      setItems(itemsArr);
+    });
+  }
+
+  useEffect(() => {
+    let isSubscribed = true;
+    if (isSubscribed){
+      fetchItems(category, token).then(itemsArr => {
+        setItems(itemsArr);
+      });
+    }
+    return () => { isSubscribed = false; }
+  }, [category, token, setItems]);
 
   const length = items !== undefined ? items.length : 0;
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, length - page * rowsPerPage);
@@ -139,10 +162,20 @@ export default function CustomPaginationActionsTable(props: TableProps) {
   };
 
   const handleDeleteItem = (itemId: string) => {
-      deleteItem(itemId);    
+    deleteItem(itemId, token).then(() => {
+      fetchData();
+    });
+  }
+
+  const reloadData = () => {
+    fetchData();
   }
 
   return (
+    <>
+    <div className="addIcon">
+      <Dialog type="add" categoryId={category._id} token={token} reload={reloadData}/>
+    </div>
     <Paper className={classes.root}>
         <div className={classes.tableWrapper}>
           <Table className={classes.table}>
@@ -162,9 +195,9 @@ export default function CustomPaginationActionsTable(props: TableProps) {
                     <TableCell component="th" scope="row">
                     {item.name}
                     </TableCell>
-                    <TableCell align="center">
-                          <Button onClick={() => handleDeleteItem(item._id)}><DeleteIcon/></Button>
-                          <Button><CreateIcon/></Button>
+                    <TableCell align="center" className={classes.actions}>
+                        <Button onClick={() => handleDeleteItem(item._id)}><DeleteIcon/></Button>
+                        <Dialog type="update" categoryId={item.category} token={token} item={item} reload={reloadData}/>
                     </TableCell>
                     <TableCell align="right">{item.size}</TableCell>
                     <TableCell align="right">{item.price}</TableCell>
@@ -199,5 +232,6 @@ export default function CustomPaginationActionsTable(props: TableProps) {
           </Table>
         </div>
     </Paper>
+    </>
   );
 }

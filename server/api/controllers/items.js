@@ -2,7 +2,7 @@ const Item = require('../models/item');
 const Category = require('../models/category');
 
 const mongoose = require('mongoose');
-const fs = require('fs')
+const fs = require('fs');
 
 exports.get_all = (req, res, next) => {
     Item.find( { category: req.body.categoryId })
@@ -26,7 +26,6 @@ exports.get_one = (req, res, next) => {
     Item.findById(item)
     .exec()
     .then(data => {
-        console.log(data);
         if(data){
             res.status(200).json(data);
         }else{
@@ -41,24 +40,37 @@ exports.get_one = (req, res, next) => {
     })
 }
 
-exports.update = (req, res, next) => {
+exports.update = async (req, res, next) => {
     const id = req.params.itemId;
+    const { category ,name, size, price } = req.body;
+    const img = req.file;
 
-    const updateOps = {};
-    for(const ops of req.body){
-        updateOps[ops.propName] = ops.value;
+    const item = await checkItemExist(id);
+
+    if (item !== undefined){
+
+        const path = "./" + item[0].img;
+                
+        const fileDeleted = await deleteFile(path);
+
+        if (fileDeleted){
+            Item.updateOne({ _id: id }, { 
+                category: category,
+                name: name,
+                size: size,
+                price: price,
+                img: img.path
+            })
+            .exec()
+            .then(result => {
+                res.status(200).json(result);
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).json({ error: err });
+            });    
+        }
     }
-
-    Item.update({ _id: id }, { $set: updateOps })
-    .exec()
-    .then(result => {
-        console.log(result);
-        res.status(200).json(result);
-    })
-    .catch(err => {
-        console.log(err);
-        res.status(500).json({ error: err });
-    });    
 }
 
 const checkItemExist = (itemId) => {
@@ -137,8 +149,8 @@ exports.add = async (req, res, next) => {
                 _id: new mongoose.Types.ObjectId(),
                 category: req.body.category,
                 name: req.body.name,
-                size: req.body.size,
-                price: req.body.price,
+                size: parseInt(req.body.size, 10),
+                price: parseInt(req.body.price, 10),
                 img: req.file !== undefined? req.file.path: ""
             });
         

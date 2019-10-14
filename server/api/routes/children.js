@@ -7,7 +7,7 @@ const children = require('../controllers/children');
 router.get('/', verifyToken, children.get_all);
 router.post('/', verifyToken, upload.single('img'), children.add);
 router.get('/:childId', verifyToken, children.get_one);
-router.patch('/:childId', verifyToken, children.update);
+router.patch('/:childId', verifyToken, upload.single('img'), children.update);
 router.delete('/:childId', verifyToken, children.delete);
 
 module.exports = router;
